@@ -1,0 +1,107 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+class Person {
+    private String name;
+    private String gender;
+    private Person parent;
+
+    public Person(String name, String gender) {
+        this.name = name;
+        this.gender = gender;
+        this.parent = null;
+    }
+
+    public void setParent(Person parent) {
+        this.parent = parent;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public Person getParent() {
+        return parent;
+    }
+}
+
+public class FamilyTree {
+    private Person root;
+    private List<Person> members;
+
+    public FamilyTree() {
+        root = null;
+        members = new ArrayList<>();
+    }
+
+    public void addMember(String name, String gender, String parentName) {
+        Person person = new Person(name, gender);
+        members.add(person);
+
+        if (parentName != null) {
+            Person parent = findMemberByName(parentName);
+            if (parent != null) {
+                person.setParent(parent);
+            }
+        } else {
+            // Set the root if no parent specified
+            if (root == null) {
+                root = person;
+            }
+        }
+
+        // Sort the members lexicographically
+        Collections.sort(members, (p1, p2) -> p1.getName().compareTo(p2.getName()));
+    }
+
+    public List<String> findAncestralBloodline(String name) {
+        Person person = findMemberByName(name);
+        if (person != null) {
+            List<String> lineage = new ArrayList<>();
+            while (person != null) {
+                lineage.add(person.getName());
+                person = person.getParent();
+            }
+            return lineage;
+        }
+        return new ArrayList<>();
+    }
+
+    private Person findMemberByName(String name) {
+        for (Person person : members) {
+            if (person.getName().equals(name)) {
+                return person;
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        FamilyTree familyTree = new FamilyTree();
+
+        // Adding members to the family tree
+        familyTree.addMember("John", "Male", null);  // John is the root
+        familyTree.addMember("Alice", "Female", "John");
+        familyTree.addMember("Bob", "Male", "John");
+        familyTree.addMember("Carol", "Female", "Alice");
+        familyTree.addMember("David", "Male", "Alice");
+        familyTree.addMember("Eve", "Female", "Bob");
+
+        // Finding the ancestral bloodline for a person
+        String personName = "Eve";
+        List<String> ancestors = familyTree.findAncestralBloodline(personName);
+        if (!ancestors.isEmpty()) {
+            System.out.print("Ancestral bloodline of " + personName + ": ");
+            for (String ancestor : ancestors) {
+                System.out.print(ancestor + " ");
+            }
+        } else {
+            System.out.println("No information found for " + personName);
+        }
+    }
+}
